@@ -230,8 +230,8 @@ public class FilerSender {
 						if (incomingPack.getSeqNum() == seq) {
 							System.out.println("Seq in Ordnung");
 							long check = incomingPack.getCheckSum();
-							incomingPack.setChecksum();
-							if (check == incomingPack.getCheckSum()) {
+							Package test = new Package(incomingPack.getFilename(), incomingPack.getSeqNum(), incomingPack.getAck(), incomingPack.getFin(), incomingPack.getContent());
+							if (check == test.getCheckSum()) {
 								System.out.println("Checksum in Ordnung");
 								System.out.println("Package erhalten");
 								processMsg(SenderMsg.ack_true);
