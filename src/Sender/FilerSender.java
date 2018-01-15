@@ -175,7 +175,7 @@ public class FilerSender {
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
-			return SenderState.SEND;
+			return SenderState.WAIT_FOR_ACK;
 		}
 		
 	}
@@ -229,9 +229,19 @@ public class FilerSender {
 						ack = true;
 						if (incomingPack.getSeqNum() == seq) {
 							System.out.println("Seq in Ordnung");
-							System.out.println("Package erhalten");
-							processMsg(SenderMsg.ack_true);
-							return SenderState.SEND;
+							long check = incomingPack.getCheckSum();
+							incomingPack.setChecksum();
+							if (check == incomingPack.getCheckSum()) {
+								System.out.println("Checksum in Ordnung");
+								System.out.println("Package erhalten");
+								processMsg(SenderMsg.ack_true);
+								return SenderState.SEND;
+							}
+							else {
+								System.out.println("Checksum fehlerhaft");
+								processMsg(SenderMsg.ack_false);
+								return SenderState.SEND;
+							}
 						}
 						else {
 							System.out.println("Seq fehlerhaft");
@@ -253,6 +263,5 @@ public class FilerSender {
 	public static void main (String[] args) throws UnknownHostException {
 		FilerSender fs = new FilerSender("default.txt", InetAddress.getByName("127.0.0.1"));
 		fs.processMsg(SenderMsg.set_up_first);
-		fs.processMsg(SenderMsg.wait_ack);
 	}
 }
